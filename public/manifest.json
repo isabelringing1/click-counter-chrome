@@ -1,25 +1,29 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
-  "icons": [
+  "manifest_version": 3,
+  "name": "Click Counter",
+  "description": "",
+  "version": "1.0",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Open the popup",
+    "default_icon": "click.png"
+  },
+  "content_scripts": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    },
-    {
-      "src": "logo192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "logo512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
+      "all_frames": false,
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["/content.js"],
+      "run_at": "document_start"
+    }  
   ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": ["http://*/*", "https://*/*"]
 }
