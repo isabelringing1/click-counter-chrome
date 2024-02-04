@@ -24,12 +24,23 @@ async function onClick(){
     if (cacheLoaded){
         await chrome.storage.sync.set({ "click_count" : clicks });
     }
-    chrome.runtime.sendMessage({updatedClicks : clicks});
-    console.log("content.js: updating clicks to " + clicks)
-    window.postMessage({
-        id: "updatedClicks",
-        clicks: clicks
-    });
+    broadcastUpdatedClicks();
+}
+
+async function spendClicks(amount){
+    clicks -= amount;
+    if (cacheLoaded){
+        await chrome.storage.sync.set({ "click_count" : clicks });
+    }
+    broadcastUpdatedClicks();
+}
+
+async function setClicks(amount){
+    clicks = amount;
+    if (cacheLoaded){
+        await chrome.storage.sync.set({ "click_count" : clicks });
+    }
+    broadcastUpdatedClicks();
 }
 
 async function getStorageAsync(){
@@ -37,25 +48,35 @@ async function getStorageAsync(){
     if (items){
         Object.assign(storageCache, items);
     }
-    console.log("retreiving storage as " + storageCache.click_count)
     clicks = parseInt(storageCache.click_count);
-    chrome.runtime.sendMessage({updatedClicks : clicks});
     cacheLoaded = true;
-
+    
     // In case the website is listening
+    broadcastUpdatedClicks();
+}
+
+// Listens to the website's requests
+window.addEventListener("message", (event) => {
+    if (event.data.id == "getClicks"){
+        broadcastUpdatedClicks(true);
+    }
+    else if (event.data.id == "spendClicks"){
+        spendClicks(event.data.amount);
+    }
+    else if (event.data.id == "resetClicks"){
+       spendClicks(clicks);
+    }
+    else if (event.data.id == "setClicks"){
+        setClicks(event.data.amount);
+    }
+});
+
+function broadcastUpdatedClicks(justMessage = false){
+    if (!justMessage){
+        chrome.runtime.sendMessage({updatedClicks : clicks});
+    }
     window.postMessage({
         id: "updatedClicks",
         clicks: clicks
     });
 }
-
-// Listens to the website's request to get click count
-window.addEventListener("message", (event) => {
-    if (event.data.id == "getClicks"){
-        window.postMessage({
-            id: "updatedClicks",
-            clicks: clicks
-        });
-    }
-});
-
