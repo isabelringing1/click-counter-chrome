@@ -1,5 +1,6 @@
 var clicks = 0;
-const storageCache = { click_count: 0 };
+var bc =  0;
+const storageCache = { click_count: 0, bc_count: 0 };
 var cacheLoaded = false;
 
 getStorageAsync();
@@ -43,12 +44,23 @@ async function setClicks(amount){
     broadcastUpdatedClicks();
 }
 
+async function setBc(amount){
+    bc = amount;
+    if (cacheLoaded){
+        console.log("Setting bc in storage to " + bc)
+        await chrome.storage.sync.set({ "bc_count" : bc });
+    }
+    chrome.runtime.sendMessage({updatedBc : bc});
+}
+
 async function getStorageAsync(){
     var items = await chrome.storage.sync.get();
     if (items){
         Object.assign(storageCache, items);
     }
     clicks = parseInt(storageCache.click_count);
+    bc = parseInt(storageCache.bc_count);
+    chrome.runtime.sendMessage({updatedBc : bc});
     cacheLoaded = true;
     
     // In case the website is listening
@@ -62,6 +74,9 @@ window.addEventListener("message", (event) => {
     }
     else if (event.data.id == "spendClicks"){
         spendClicks(event.data.amount);
+    }
+    else if (event.data.id == "broadcastBc"){
+        setBc(event.data.bc);
     }
     else if (event.data.id == "resetClicks"){
        spendClicks(clicks);
