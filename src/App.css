@@ -7,6 +7,7 @@
   align-items: center;
   font-size: 25px;
   line-height: 1.6;
+  background-image: url("tile_bg.png");
 }
 
 .bc-symbol{
