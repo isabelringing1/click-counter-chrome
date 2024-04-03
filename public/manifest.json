@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Click Counter",
+  "name": "Bread Winner Extension",
   "description": "",
   "version": "1.0",
   "action": {
@@ -21,11 +21,8 @@
   },
   "permissions": [
     "storage",
-    "activeTab",
-    "scripting",
-    "tabs"
+    "activeTab"
   ],
-  "host_permissions": ["http://*/*", "https://*/*"],
   "icons": {
     "16": "bread.png",
     "48": "bread.png",

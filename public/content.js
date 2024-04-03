@@ -148,6 +148,9 @@ window.addEventListener("message", (event) => {
     else if (event.data.id == "unlockKeys"){
         unlockKeys();
     }
+    else if (event.data.id == "spendKeys"){
+        spendKeys(event.data.amount)
+    }
 });
 
 function broadcastUpdatedClicks(justMessage = false){

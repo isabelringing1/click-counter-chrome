@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener( function (message, sender, sendResponse) {
       totalKeys = message.updatedKeys;
     }
     else if (message.getKeys && keysUnlocked){
-      chrome.runtime.sendMessage({updatedKeys: totalKeys });
+      chrome.runtime.sendMessage({updatedKeys: totalKeys, keysUnlocked: true });
     }
   });
 });
