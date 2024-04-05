@@ -17,7 +17,6 @@ function App() {
         setClickCt(message.updatedClicks);
       }
       if (message.keysUnlocked){
-        console.log("Received updated keys " + message.updatedKeys)
         setKeyCt(message.updatedKeys)
         setKeysUnlocked(true)
       }
@@ -36,7 +35,7 @@ function App() {
     <div className="App">
       <div className="border"></div>
       <img id="decal" src={decal}/>
-      <a href="https://isabellee.me/breadwinner" target="_blank" rel="noreferrer"><img id="to-game" src={toGameIcon}/></a>
+      <a id="to-game-link" href="https://isabellee.me/breadwinner" target="_blank" rel="noreferrer"><img id="to-game" src={toGameIcon}/></a>
       <div id="logo">bw</div>
       <div id="click-ct">{clickCt.toLocaleString()} {clickCt == 1 ? "click" : "clicks"}</div>
       { keysUnlocked ? <div id="key-ct">{keyCt.toLocaleString()} {keyCt == 1 ? "key" : "keys"} </div> : null }

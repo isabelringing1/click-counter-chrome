@@ -25,6 +25,7 @@
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
+  z-index: 1;
 }
 
 .bc-symbol{
@@ -44,6 +45,10 @@
   bottom: 0px;
 }
 
+#to-game-link{
+  z-index: 10;
+}
+
 #to-game{
   position: absolute;
   top: 0px;
@@ -54,4 +59,5 @@
   position: absolute;
   top: 5px;
   left: 10px;
+  z-index: 10;
 }

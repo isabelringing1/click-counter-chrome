@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Bread Winner Extension",
+  "name": "Bread Winner Companion",
   "description": "",
   "version": "1.0",
   "action": {
@@ -20,8 +20,7 @@
     "service_worker": "background.js"
   },
   "permissions": [
-    "storage",
-    "activeTab"
+    "storage"
   ],
   "icons": {
     "16": "bread.png",
