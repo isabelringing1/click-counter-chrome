@@ -4,13 +4,24 @@ var keysUnlocked = false;
 var bc =  0;
 const storageCache = { click_count: 0, bc_count: 0, key_count: 0, keys_unlocked: false };
 var cacheLoaded = false;
+
+var currentClickBatchIndex = 0
+var batchClickSize = 5
+
+var currentKeyBatchIndex = 0
+var batchKeySize = 15
+
+var lastClickTimestamp;
 var lastKeyDownTimestamp = 0;
 
-var dupeKeyCutoff = 50; //ms to consider events a dupe
+var longEnoughMs = 1000
+
+// Tell background.js that content.js wants to receive get click messages
+chrome.runtime.sendMessage({from:"content"}); 
 
 getStorageAsync();
 document.addEventListener("click", (event) => {
-    onClick();
+    onClick(event);
 });
 document.addEventListener("keydown", (event) => {
     onKeyDown(event);
@@ -27,10 +38,31 @@ window.onload = () => {
     }
 }
 
+chrome.runtime.onMessage.addListener(async function(message) {
+    if (message.updateClicks){ // background.js tells us the popup has been opened, need to update clicks
+        chrome.runtime.sendMessage({updatedClicks : clicks}); 
+        await chrome.storage.sync.set({ "click_count" : clicks });
+        currentClickBatchIndex = 0
+    }
+    if (message.updateKeys){
+        chrome.runtime.sendMessage({updatedKeys: keys, keysUnlocked: keysUnlocked });
+        await chrome.storage.sync.set({ "key_count" : keys });
+        currentKeyBatchIndex = 0
+    }
+});
+
 // If tab is revisited, retreive storage again
 document.addEventListener("visibilitychange", (event) => {
     if (document.visibilityState == "visible") {
         getStorageAsync();
+        chrome.runtime.sendMessage({from:"content"}); 
+    }
+    else if (document.visibilityState == "hidden"){
+        //Save what we have
+        chrome.storage.sync.set({ "click_count" : clicks, "key_count" : keys });
+        currentClickBatchIndex = 0
+        currentKeyBatchIndex = 0
+        cacheLoaded = false
     }
 });
 
@@ -40,12 +72,24 @@ Event.prototype.stopPropagation = function (...args) {
     return _original_stopPropogation.apply(this, args);
 };
 
-async function onClick(){
+async function onClick(e){
     clicks++;
+    currentClickBatchIndex++
     if (cacheLoaded){
-        await chrome.storage.sync.set({ "click_count" : clicks });
+        if (currentClickBatchIndex % batchClickSize == 0 || hasBeenLongEnough(e.timeStamp, lastClickTimestamp)){
+            await chrome.storage.sync.set({ "click_count" : clicks });
+            currentClickBatchIndex = 0
+        }
     }
+    lastClickTimestamp = e.timeStamp
     broadcastUpdatedClicks();
+}
+
+function hasBeenLongEnough(newTimestamp, lastTimestamp){
+    if (newTimestamp - lastTimestamp > longEnoughMs){
+        return true;
+    }
+    return false;
 }
 
 async function spendClicks(amount){
@@ -67,23 +111,24 @@ async function setClicks(amount){
 async function setBc(amount){
     bc = amount;
     if (cacheLoaded){
-        console.log("Setting bc in storage to " + bc)
         await chrome.storage.sync.set({ "bc_count" : bc });
     }
     chrome.runtime.sendMessage({updatedBc : bc});
 }
 
 async function onKeyDown(e){
-    var timeDiff = Math.abs(e.timeStamp - lastKeyDownTimestamp)
-    lastKeyDownTimestamp = e.timeStamp
-    if (!keysUnlocked || timeDiff < dupeKeyCutoff){
+    if (!keysUnlocked){
         return;
     }
     keys++;
+    currentKeyBatchIndex++
     if (cacheLoaded){
-        await chrome.storage.sync.set({ "key_count" : keys });
+        if (currentKeyBatchIndex % batchKeySize == 0 || hasBeenLongEnough(e.timeStamp, lastKeyDownTimestamp)){
+            await chrome.storage.sync.set({ "key_count" : keys });
+            currentKeyBatchIndex = 0
+        }
     }
-    
+    lastKeyDownTimestamp = e.timeStamp
     broadcastUpdatedKeys();
 }
 
@@ -107,6 +152,12 @@ async function unlockKeys(){
     broadcastUpdatedKeys();
 }
 
+async function lockKeys(){
+    keysUnlocked = false
+    if (cacheLoaded){
+        await chrome.storage.sync.set({ "keys_unlocked" : false });
+    }
+}
 
 async function getStorageAsync(){
     var items = await chrome.storage.sync.get();
@@ -151,13 +202,16 @@ window.addEventListener("message", (event) => {
     else if (event.data.id == "spendKeys"){
         spendKeys(event.data.amount)
     }
+    else if (event.data.id == "lockKeys"){
+        lockKeys();
+    }
 });
 
 function broadcastUpdatedClicks(justMessage = false){
     if (!justMessage){
-        chrome.runtime.sendMessage({updatedClicks : clicks});
+        chrome.runtime.sendMessage({updatedClicks : clicks}); 
     }
-    window.postMessage({
+    window.postMessage({ // alerts website
         id: "updatedClicks",
         clicks: clicks
     });
