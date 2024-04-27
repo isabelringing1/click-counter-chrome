@@ -6,10 +6,10 @@ const storageCache = { click_count: 0, bc_count: 0, key_count: 0, keys_unlocked:
 var cacheLoaded = false;
 
 var currentClickBatchIndex = 0
-var batchClickSize = 5
+var batchClickSize = 10
 
 var currentKeyBatchIndex = 0
-var batchKeySize = 15
+var batchKeySize = 20
 
 var lastClickTimestamp;
 var lastKeyDownTimestamp = 0;
