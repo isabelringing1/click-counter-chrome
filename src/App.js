@@ -29,7 +29,6 @@ function App() {
     chrome.runtime.sendMessage({getBc : true});
     chrome.runtime.sendMessage({getKeys : true});
   }, []);
-  console.log("keys unlocked is " + keysUnlocked)
   
   return (
     <div className="App">
@@ -39,7 +38,6 @@ function App() {
       <div id="logo">bw</div>
       <div id="click-ct">{clickCt.toLocaleString()} {clickCt == 1 ? "click" : "clicks"}</div>
       { keysUnlocked ? <div id="key-ct">{keyCt.toLocaleString()} {keyCt == 1 ? "key" : "keys"} </div> : null }
-      {/*<div id="bc-ct"><span className="bc-symbol-span"><img className="bc-symbol" src={bcSymbol}/></span>{bc.toLocaleString()}</div>*/}
     </div>
   );
 }

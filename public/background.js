@@ -24,9 +24,7 @@ chrome.runtime.onMessage.addListener( function (message, sender, sendResponse) {
       if (contentTabId){
         chrome.tabs.sendMessage(contentTabId, {updateClicks : true}); //asks content.js to update its current click count
       }
-    }
-    else if (message.getBc){
-      chrome.runtime.sendMessage({updatedBc : bc});
+      chrome.runtime.sendMessage({updateClicks : true}) // in case tab is outdated/wer're on home page
     }
     else if (message.updatedKeys){
       totalKeys = message.updatedKeys;
@@ -35,6 +33,7 @@ chrome.runtime.onMessage.addListener( function (message, sender, sendResponse) {
       if (contentTabId){
         chrome.tabs.sendMessage(contentTabId, {updateKeys : true}); //asks content.js to update its current key count
       }
+      chrome.runtime.sendMessage({updatedKeys: true})
     }
   });
 });

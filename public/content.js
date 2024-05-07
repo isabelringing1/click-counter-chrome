@@ -9,7 +9,7 @@ var currentClickBatchIndex = 0
 var batchClickSize = 10
 
 var currentKeyBatchIndex = 0
-var batchKeySize = 20
+var batchKeySize = 50
 
 var lastClickTimestamp;
 var lastKeyDownTimestamp = 0;
@@ -93,27 +93,19 @@ function hasBeenLongEnough(newTimestamp, lastTimestamp){
 }
 
 async function spendClicks(amount){
-    clicks -= amount;
-    if (cacheLoaded){
+    clicks = Math.max(0, clicks - amount)
+    /* if (cacheLoaded){
         await chrome.storage.sync.set({ "click_count" : clicks });
-    }
+    }*/
     broadcastUpdatedClicks();
 }
 
 async function setClicks(amount){
-    clicks = amount;
+    clicks = Math.max(0, amount)
     if (cacheLoaded){
         await chrome.storage.sync.set({ "click_count" : clicks });
     }
     broadcastUpdatedClicks();
-}
-
-async function setBc(amount){
-    bc = amount;
-    if (cacheLoaded){
-        await chrome.storage.sync.set({ "bc_count" : bc });
-    }
-    chrome.runtime.sendMessage({updatedBc : bc});
 }
 
 async function onKeyDown(e){
@@ -144,7 +136,6 @@ async function spendKeys(amount){
 }
 
 async function unlockKeys(){
-    console.log("Extension: Unlocking keys")
     keysUnlocked = true;
     if (cacheLoaded){
         await chrome.storage.sync.set({ "keys_unlocked" : true });
@@ -183,9 +174,6 @@ window.addEventListener("message", (event) => {
     }
     else if (event.data.id == "spendClicks"){
         spendClicks(event.data.amount);
-    }
-    else if (event.data.id == "broadcastBc"){
-        setBc(event.data.bc);
     }
     else if (event.data.id == "resetClicks"){
        spendClicks(clicks);
