@@ -3,7 +3,6 @@ import './App.css';
 import {useState, useEffect} from 'react';
 import toGameIcon from './to_game.png'
 import decal from './decal.png'
-import bcSymbol from './bc.png'
 
 function App() {
   const [clickCt, setClickCt] = useState(0);
