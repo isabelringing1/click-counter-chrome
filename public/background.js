@@ -18,13 +18,13 @@ chrome.runtime.onMessage.addListener( function (message, sender, sendResponse) {
       contentTabId = sender.tab.id;
     }
     else if (message.updatedClicks){
-      totalClicks = message.updatedClicks;
+        totalClicks = message.updatedClicks;
     }
     else if (message.getClicks){
-      if (contentTabId){
-        chrome.tabs.sendMessage(contentTabId, {updateClicks : true}); //asks content.js to update its current click count
-      }
-      chrome.runtime.sendMessage({updateClicks : true}) // in case tab is outdated/wer're on home page
+        if (contentTabId){
+            chrome.tabs.sendMessage(contentTabId, {updateClicks : true}); //asks content.js to update its current click count
+        }
+        chrome.runtime.sendMessage({updateClicks : true}) // in case tab is outdated/wer're on home page
     }
     else if (message.updatedKeys){
       totalKeys = message.updatedKeys;

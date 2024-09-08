@@ -66,6 +66,20 @@ document.addEventListener("visibilitychange", (event) => {
     }
 });
 
+window.addEventListener("focus", (event) => {
+    getStorageAsync();
+    chrome.runtime.sendMessage({from:"content"}); 
+})
+
+window.addEventListener("blur", (event) => {
+    //Save what we have
+    chrome.storage.sync.set({ "click_count" : clicks, "key_count" : keys });
+    currentClickBatchIndex = 0
+    currentKeyBatchIndex = 0
+    cacheLoaded = false
+});
+
+
 let _original_stopPropogation = Event.prototype.stopPropagation;
 Event.prototype.stopPropagation = function (...args) {
     onClick();
