@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Bread Winner Companion",
-  "description": "",
+  "description": "Track your click count for Bread Winner, an idle clicker game.",
   "version": "1.3",
   "action": {
     "default_popup": "index.html",
